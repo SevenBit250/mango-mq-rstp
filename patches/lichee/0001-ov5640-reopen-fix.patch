@@ -1,0 +1,38 @@
+From 00da15957058a72fce08c6ff04a16e13010faf93 Mon Sep 17 00:00:00 2001
+From: zcode <zcode@local>
+Date: Wed, 21 Oct 2026 23:59:06 +0800
+Subject: [PATCH] =?UTF-8?q?:bug:=20=E4=BF=AE=E5=A4=8D=20OV5640=20=E5=86=8D?=
+ =?UTF-8?q?=E6=AC=A1=E6=89=93=E5=BC=80=E6=97=B6=E8=AF=86=E5=88=AB=E5=A4=B1?=
+ =?UTF-8?q?=E8=B4=A5?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+1. PWR_OFF 不再关闭 MCLK：板上 RESET(R52 NC) 悬空、PWDN 接地，
+   停时钟后传感器无法复位，再次 PWR_ON 会读回 0x808
+2. 保持 MCLK 常开后，连续多次打开 /dev/video0 均能正确识别
+
+Change-Id: Ic4311b97b5fa8dd927f1774754a933889a11fd45
+---
+ drivers/media/platform/sunxi-vin/modules/sensor/ov5640.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/media/platform/sunxi-vin/modules/sensor/ov5640.c b/drivers/media/platform/sunxi-vin/modules/sensor/ov5640.c
+index 44832404b..754dfc766 100644
+--- a/drivers/media/platform/sunxi-vin/modules/sensor/ov5640.c
++++ b/drivers/media/platform/sunxi-vin/modules/sensor/ov5640.c
+@@ -3630,7 +3630,10 @@ static int sensor_power(struct v4l2_subdev *sd, int on)
+ 	case PWR_OFF:
+ 		sensor_print("PWR_OFF!\n");
+ 		cci_lock(sd);
+-		vin_set_mclk(sd, OFF);
++		/* MangoPi Nezha-MQ: 板上 RESET(R52 NC)/PWDN(GND) 均不受控，
++		 * 停 MCLK 后传感器无法有效复位，再次 PWR_ON 时 SCCB 读到乱码。
++		 * 因此保持 MCLK 常开，采集之间不做无意义的掉电。 */
++		/* vin_set_mclk(sd, OFF); */
+ 		vin_gpio_write(sd, POWER_EN, CSI_GPIO_LOW);
+ 		vin_set_pmu_channel(sd, AFVDD, OFF);
+ 		vin_set_pmu_channel(sd, DVDD, OFF);
+-- 
+2.43.0
+

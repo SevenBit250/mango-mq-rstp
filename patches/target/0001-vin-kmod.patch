@@ -1,0 +1,72 @@
+From 94046b27413fbad4e5463bad30e3f209ff5ecf25 Mon Sep 17 00:00:00 2001
+From: zcode <zcode@local>
+Date: Wed, 21 Oct 2026 23:59:06 +0800
+Subject: [PATCH] =?UTF-8?q?:hammer:=20=E5=8A=A0=E8=BD=BD=20sunxi=20VIN=20?=
+ =?UTF-8?q?=E6=A8=A1=E5=9D=97=E5=B9=B6=E6=89=93=E5=8C=85=20kmod-vin-v4l2?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+1. modules.mk 启用 KernelPackage/vin-v4l2（vin_io / ov5640 / vin_v4l2）
+2. rc.modules 末尾按依赖顺序 insmod 三个模块
+3. defconfig 选中 CONFIG_PACKAGE_kmod-vin-v4l2
+
+Change-Id: Ia1fabe71491688af14226abd702d24e872e0940e
+---
+ .../etc/init.d/rc.modules                       |  7 +++++++
+ allwinner/d1s-nezha_sd/defconfig                |  1 +
+ allwinner/d1s-nezha_sd/modules.mk               | 17 +++++++++++++++++
+ 3 files changed, 25 insertions(+)
+
+diff --git a/allwinner/d1s-nezha_sd/busybox-init-base-files/etc/init.d/rc.modules b/allwinner/d1s-nezha_sd/busybox-init-base-files/etc/init.d/rc.modules
+index 8a27d2f..8b03f07 100755
+--- a/allwinner/d1s-nezha_sd/busybox-init-base-files/etc/init.d/rc.modules
++++ b/allwinner/d1s-nezha_sd/busybox-init-base-files/etc/init.d/rc.modules
+@@ -16,3 +16,10 @@ else
+ 	/sbin/insmod /lib/modules/5.4.61/xr829.ko
+ 	wpa_supplicant -Dnl80211 -iwlan0 -c /etc/wifi/wpa_supplicant.conf -B
+ fi
++
++# DVP camera (OV5640): vin_io -> sensor -> vin_v4l2
++if [ -f /lib/modules/5.4.61/vin_io.ko ]; then
++	/sbin/insmod /lib/modules/5.4.61/vin_io.ko
++	/sbin/insmod /lib/modules/5.4.61/ov5640.ko
++	/sbin/insmod /lib/modules/5.4.61/vin_v4l2.ko
++fi
+diff --git a/allwinner/d1s-nezha_sd/defconfig b/allwinner/d1s-nezha_sd/defconfig
+index f8b707b..a133d3a 100755
+--- a/allwinner/d1s-nezha_sd/defconfig
++++ b/allwinner/d1s-nezha_sd/defconfig
+@@ -4755,3 +4755,4 @@ CONFIG_PACKAGE_uboot-envtools=y
+ # CONFIG_PACKAGE_xmltest is not set
+ # CONFIG_PACKAGE_xsltproc is not set
+ # CONFIG_PACKAGE_yuview is not set
++CONFIG_PACKAGE_kmod-vin-v4l2=y
+diff --git a/allwinner/d1s-nezha_sd/modules.mk b/allwinner/d1s-nezha_sd/modules.mk
+index d976e29..de3afa5 100755
+--- a/allwinner/d1s-nezha_sd/modules.mk
++++ b/allwinner/d1s-nezha_sd/modules.mk
+@@ -163,3 +163,20 @@
+ #
+ #$(eval $(call KernelPackage,iio-mpu6xxx-spi))
+ #
++
++# MangoPi Nezha-MQ: DVP camera (OV5640) over sunxi VIN
++define KernelPackage/vin-v4l2
++  SUBMENU:=Video Input Support
++  TITLE:=Sunxi VIN (CSI/DVP) + OV5640 sensor
++  DEPENDS:=
++  FILES:=$(LINUX_DIR)/drivers/media/platform/sunxi-vin/vin_io.ko
++  FILES+=$(LINUX_DIR)/drivers/media/platform/sunxi-vin/modules/sensor/ov5640.ko
++  FILES+=$(LINUX_DIR)/drivers/media/platform/sunxi-vin/vin_v4l2.ko
++  AUTOLOAD:=$(call AutoProbe,vin_io ov5640 vin_v4l2)
++endef
++
++define KernelPackage/vin-v4l2/description
++ Sunxi video input modules for DVP camera (OV5640)
++endef
++
++$(eval $(call KernelPackage,vin-v4l2))
+-- 
+2.43.0
+

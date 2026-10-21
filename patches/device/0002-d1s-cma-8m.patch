@@ -1,0 +1,13 @@
+diff --git a/configs/default/env.cfg b/configs/default/env.cfg
+index 7337d29..9e322b3 100755
+--- a/configs/default/env.cfg
++++ b/configs/default/env.cfg
+@@ -12,7 +12,7 @@ root_partition=rootfs
+ boot_partition=boot
+ init=/sbin/init
+ loglevel=8
+-cma=16M
++cma=8M
+ mac=
+ wifi_mac=
+ bt_mac=
