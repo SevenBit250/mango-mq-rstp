@@ -13,6 +13,7 @@
 | `lichee/linux-5.4` | `2c3a14af7` |
 | `device/config/chips/d1s` | `0ecfc74` |
 | `target` | `7ebeada` |
+| `lichee/brandy-2.0/u-boot-2018` | `e987def5` |
 
 lichee 的两个补丁直接打在 `2c3a14af7` 的 `ov5640.c` 上，中间的 WiFi 集成提交没有动这个文件。
 
@@ -27,6 +28,7 @@ device 和 target 的补丁改的是 `d1s-nezha_sd` 板级目录，mainline 里�
 | `device/` | `device/config/chips/d1s` |
 | `lichee/` | `lichee/linux-5.4` |
 | `target/` | `target` |
+| `uboot/` | `lichee/brandy-2.0/u-boot-2018` |
 
 基线是带 `d1s-nezha_sd` 板级配置的 Tina SDK。应用顺序：
 
@@ -36,6 +38,7 @@ git apply ../../../patches/device/0001-d1s-nezha_sd-dvp-ov5640.patch
 git apply ../../../patches/device/0002-d1s-cma-8m.patch
 git apply ../../../patches/device/0003-d1s-status-led.patch
 git apply ../../../patches/device/0004-d1s-thermal.patch
+git apply ../../../patches/device/0005-d1s-no-display-cma4m.patch
 
 cd lichee/linux-5.4
 git apply ../../../patches/lichee/0001-ov5640-reopen-fix.patch
@@ -43,6 +46,10 @@ git apply ../../../patches/lichee/0002-ov5640-720p60-78mhz.patch
 
 cd target
 git apply ../../../patches/target/0001-vin-kmod.patch
+git apply ../../../patches/target/0002-no-disp-package.patch
+
+cd lichee/brandy-2.0/u-boot-2018
+git apply ../../../patches/uboot/0001-no-display-logo.patch
 ```
 
 （路径按实际仓库位置调整。）
@@ -69,6 +76,23 @@ PD22 上的蓝色 LED（VCC3V3 → LED → R80 5.1K → PD22，低电平点亮�
 打开 `CONFIG_THERMAL` 和 `SUNXI_THERMAL`，用 dtsi 里 `ths@02009400` 的 nvmem 校准值注册 `cpu_thermal_zone`。之后用户态读 `/sys/class/thermal/thermal_zone0/temp`，单位毫摄氏度。
 
 DTS 里的 70°C trip 是 passive，没配 cooling-maps，到温不会自动降频。
+
+### device/0005-d1s-no-display-cma4m.patch
+
+这块板子不用显示，把整条显示链路去掉：
+
+- `config-5.4`：`DISP2_SUNXI` 关闭（连同依赖它的 HDMI2 等选项）
+- `env.cfg`：cma 8M → 4M（内核按页块对齐，3M 实际也会取整到 4M，直接写 4M 对齐）
+
+省出来的是 u-boot 预留的 4MB framebuffer 加上 4MB CMA，实测非 CMA 空闲从 8.9MB 提到 21.5MB。这个补丁会覆盖 `0002-d1s-cma-8m.patch` 里的 cma 值。
+
+### target/0002-no-disp-package.patch
+
+关掉 `kmod-sunxi-disp` 包，去掉 `disp.ko` 和 `/etc/modules.d/10-sunxi-disp`，避免开机加载显示驱动。
+
+### uboot/0001-no-display-logo.patch
+
+u-boot 里关掉 `CMD_SUNXI_BMP`（开机 logo）和 `DISP2_SUNXI`（显示引擎）。logo 代码会在启动时把 framebuffer 地址写进 `disp_reserve` 环境变量并传给内核，关掉之后 cmdline 里不再有 `disp_reserve`，4MB 才能还给系统。
 
 ### lichee/0001-ov5640-reopen-fix.patch
 

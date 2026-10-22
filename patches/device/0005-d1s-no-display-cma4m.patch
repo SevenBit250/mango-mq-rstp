@@ -1,0 +1,26 @@
+diff --git a/configs/default/env.cfg b/configs/default/env.cfg
+index 9e322b3..eeda4e7 100755
+--- a/configs/default/env.cfg
++++ b/configs/default/env.cfg
+@@ -12,7 +12,7 @@ root_partition=rootfs
+ boot_partition=boot
+ init=/sbin/init
+ loglevel=8
+-cma=8M
++cma=4M
+ mac=
+ wifi_mac=
+ bt_mac=
+diff --git a/configs/nezha_sd/linux/config-5.4 b/configs/nezha_sd/linux/config-5.4
+index ba0c9e5..41ffbbc 100755
+--- a/configs/nezha_sd/linux/config-5.4
++++ b/configs/nezha_sd/linux/config-5.4
+@@ -2141,7 +2141,7 @@ CONFIG_FB=y
+ # Video support for sunxi
+ #
+ # CONFIG_FB_CONSOLE_SUNXI is not set
+-CONFIG_DISP2_SUNXI=y
++# CONFIG_DISP2_SUNXI is not set
+ CONFIG_SUNXI_DISP2_FB_DISABLE_ROTATE=y
+ # CONFIG_SUNXI_DISP2_FB_ROTATION_SUPPORT is not set
+ # CONFIG_SUNXI_DISP2_FB_HW_ROTATION_SUPPORT is not set
