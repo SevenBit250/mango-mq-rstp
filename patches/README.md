@@ -15,6 +15,7 @@ cd device/config/chips/d1s
 git apply ../../../patches/device/0001-d1s-nezha_sd-dvp-ov5640.patch
 git apply ../../../patches/device/0002-d1s-cma-8m.patch
 git apply ../../../patches/device/0003-d1s-status-led.patch
+git apply ../../../patches/device/0004-d1s-thermal.patch
 
 cd lichee/linux-5.4
 git apply ../../../patches/lichee/0001-ov5640-reopen-fix.patch
@@ -42,6 +43,12 @@ git apply ../../../patches/target/0001-vin-kmod.patch
 ### device/0003-d1s-status-led.patch
 
 PD22 上的蓝色 LED（VCC3V3 → LED → R80 5.1K → PD22，低电平点亮）。把 `&pwm7` 设为 disabled 收回复用，PD22 改成 GPIO，挂 `gpio-leds`，默认 `heartbeat` 触发器，节点名 `mq:blue:status`。同时打开内核的 `NEW_LEDS / LEDS_CLASS / LEDS_GPIO / LEDS_TRIGGERS` 和几个常用触发器。
+
+### device/0004-d1s-thermal.patch
+
+打开 `CONFIG_THERMAL` 和 `SUNXI_THERMAL`，用 dtsi 里 `ths@02009400` 的 nvmem 校准值注册 `cpu_thermal_zone`。之后用户态读 `/sys/class/thermal/thermal_zone0/temp`，单位毫摄氏度。
+
+DTS 里的 70°C trip 是 passive，没配 cooling-maps，到温不会自动降频。
 
 ### lichee/0001-ov5640-reopen-fix.patch
 

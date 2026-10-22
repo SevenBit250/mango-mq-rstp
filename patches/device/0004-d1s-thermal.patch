@@ -1,0 +1,17 @@
+diff --git a/configs/nezha_sd/linux/config-5.4 b/configs/nezha_sd/linux/config-5.4
+index 9c2b6af..ba0c9e5 100755
+--- a/configs/nezha_sd/linux/config-5.4
++++ b/configs/nezha_sd/linux/config-5.4
+@@ -1704,7 +1704,11 @@ CONFIG_HWMON=y
+ # CONFIG_SENSORS_W83L786NG is not set
+ # CONFIG_SENSORS_W83627HF is not set
+ # CONFIG_SENSORS_W83627EHF is not set
+-# CONFIG_THERMAL is not set
++CONFIG_THERMAL=y
++CONFIG_THERMAL_OF=y
++CONFIG_THERMAL_GOV_STEP_WISE=y
++CONFIG_THERMAL_DEFAULT_GOV_STEP_WISE=y
++CONFIG_SUNXI_THERMAL=y
+ # CONFIG_WATCHDOG is not set
+ CONFIG_SSB_POSSIBLE=y
+ # CONFIG_SSB is not set
