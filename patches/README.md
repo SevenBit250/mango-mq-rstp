@@ -14,6 +14,7 @@
 cd device/config/chips/d1s
 git apply ../../../patches/device/0001-d1s-nezha_sd-dvp-ov5640.patch
 git apply ../../../patches/device/0002-d1s-cma-8m.patch
+git apply ../../../patches/device/0003-d1s-status-led.patch
 
 cd lichee/linux-5.4
 git apply ../../../patches/lichee/0001-ov5640-reopen-fix.patch
@@ -37,6 +38,10 @@ git apply ../../../patches/target/0001-vin-kmod.patch
 ### device/0002-d1s-cma-8m.patch
 
 把 cma 从 16M 降到 8M。VIN 这条路实际用到的 CMA 很少，留 8M 够用，多出来的给常规内存池——64MB 板子上这 8MB 很关键。
+
+### device/0003-d1s-status-led.patch
+
+PD22 上的蓝色 LED（VCC3V3 → LED → R80 5.1K → PD22，低电平点亮）。把 `&pwm7` 设为 disabled 收回复用，PD22 改成 GPIO，挂 `gpio-leds`，默认 `heartbeat` 触发器，节点名 `mq:blue:status`。同时打开内核的 `NEW_LEDS / LEDS_CLASS / LEDS_GPIO / LEDS_TRIGGERS` 和几个常用触发器。
 
 ### lichee/0001-ov5640-reopen-fix.patch
 

@@ -1,0 +1,51 @@
+diff --git a/configs/nezha_sd/linux-5.4/board.dts b/configs/nezha_sd/linux-5.4/board.dts
+index 4219511..2b2d2ac 100755
+--- a/configs/nezha_sd/linux-5.4/board.dts
++++ b/configs/nezha_sd/linux-5.4/board.dts
+@@ -1522,7 +1522,8 @@ pull up or pull down(default 0), driver level(default 1), data>
+ 	pinctrl-names = "active", "sleep";
+ 	pinctrl-0 = <&pwm7_pin_a>;
+ 	pinctrl-1 = <&pwm7_pin_b>;
+-	status = "okay";
++	/* PD22 用作状态灯 GPIO, 不再复用为 PWM7 */
++	status = "disabled";
+ };
+ 
+ &rtp {
+@@ -1635,3 +1636,16 @@ pull up or pull down(default 0), driver level(default 1), data>
+ &scaler1 {
+ 	device_id = <1>;
+ };
++
++/* PD22: 蓝色状态灯, VCC3V3 -> LED -> R80(5.1K) -> PD22, 低电平点亮 */
++/ {
++	leds {
++		compatible = "gpio-leds";
++		status_led {
++			label = "mq:blue:status";
++			gpios = <&pio PD 22 GPIO_ACTIVE_LOW>;
++			linux,default-trigger = "heartbeat";
++			default-state = "off";
++		};
++	};
++};
+diff --git a/configs/nezha_sd/linux/config-5.4 b/configs/nezha_sd/linux/config-5.4
+index dfa7132..9c2b6af 100755
+--- a/configs/nezha_sd/linux/config-5.4
++++ b/configs/nezha_sd/linux/config-5.4
+@@ -2708,7 +2708,14 @@ CONFIG_MMC_SUNXI_V5P3X=y
+ # CONFIG_MMC_HSQ is not set
+ # CONFIG_MMC_MTK is not set
+ # CONFIG_MEMSTICK is not set
+-# CONFIG_NEW_LEDS is not set
++CONFIG_NEW_LEDS=y
++CONFIG_LEDS_CLASS=y
++CONFIG_LEDS_GPIO=y
++CONFIG_LEDS_TRIGGERS=y
++CONFIG_LEDS_TRIGGER_TIMER=y
++CONFIG_LEDS_TRIGGER_ONESHOT=y
++CONFIG_LEDS_TRIGGER_HEARTBEAT=y
++CONFIG_LEDS_TRIGGER_DEFAULT_ON=y
+ # CONFIG_ACCESSIBILITY is not set
+ # CONFIG_INFINIBAND is not set
+ CONFIG_EDAC_SUPPORT=y
