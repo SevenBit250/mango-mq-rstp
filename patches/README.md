@@ -1,5 +1,25 @@
 # patches
 
+## 基线
+
+针对的是 Tina D1 主线：
+
+- SDK 清单：`D1_Tina_Open`，manifest `tina-d1-h.xml`
+- 分支：`product-smartx-d1-h-tina-stable-v2.0`
+- 上游提交（都是 `smartx-d1-h-tina-v2.1 release`）：
+
+| 仓库 | 上游提交 |
+|---|---|
+| `lichee/linux-5.4` | `2c3a14af7` |
+| `device/config/chips/d1s` | `0ecfc74` |
+| `target` | `7ebeada` |
+
+lichee 的两个补丁直接打在 `2c3a14af7` 的 `ov5640.c` 上，中间的 WiFi 集成提交没有动这个文件。
+
+device 和 target 的补丁改的是 `d1s-nezha_sd` 板级目录，mainline 里没有这块板子，需要先合入板级移植（device `8172fad`、target `e40108f`），这部分不在本仓库里。
+
+## 应用
+
 补丁按仓库分开放，各自在对应的目录下 `git apply`：
 
 | 目录 | 对应 SDK 路径 |

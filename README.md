@@ -14,6 +14,10 @@ OV5640 的 720p60 官方时序用 84MHz 像素时钟。D1s 的 DVP 在 84MHz 下
 
 详细推导和实测数据见 [docs/how-720p60.md](docs/how-720p60.md)。
 
+## 基线
+
+补丁基于 Tina D1 主线 `product-smartx-d1-h-tina-stable-v2.0`（manifest `tina-d1-h.xml`），各仓库对应的上游提交见 [patches/README.md](patches/README.md)。
+
 ## 目录
 
 - `patches/`：内核、设备树、打包的补丁，按 `patches/README.md` 的顺序应用
